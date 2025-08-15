@@ -1,6 +1,6 @@
 import os
 import sys
-# DON'T CHANGE THIS !!!
+# DON\'T CHANGE THIS !!!
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from flask import Flask, send_from_directory
@@ -13,10 +13,10 @@ from src.routes.study_plan import study_plan_bp
 from src.routes.reports import reports_bp
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
-app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_default_secret_key') # Use environment variable for secret key
 
-# Enable CORS for all routes
-CORS(app, origins="*")
+# Enable CORS for all routes, allowing all origins for now
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Register blueprints
 app.register_blueprint(user_bp, url_prefix='/api')
@@ -25,8 +25,8 @@ app.register_blueprint(syllabus_bp, url_prefix='/api/syllabus')
 app.register_blueprint(study_plan_bp, url_prefix='/api/study-plan')
 app.register_blueprint(reports_bp, url_prefix='/api/reports')
 
-# uncomment if you need to use database
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
+# Database configuration: Use DATABASE_URL environment variable for PostgreSQL, fallback to SQLite
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 with app.app_context():
@@ -51,3 +51,5 @@ def serve(path):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+
